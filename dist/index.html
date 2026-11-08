@@ -1,100 +1,504 @@
 <!doctype html>
 <html lang="ko">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#102a40" />
-    <meta name="description" content="제5회 페르시아어 말하기대회 사전 자료집 온라인 뷰어" />
-    <title>제5회 페르시아어 말하기대회 자료집</title>
-    <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
-    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
-    <link rel="stylesheet" href="./styles.css" />
-  </head>
-  <body>
-    <header class="topbar">
-      <a class="brand" href="#" aria-label="자료집 첫 페이지로 이동">
-        <img class="brand-mark" src="./assets/department-50th.png" alt="페르시아어·이란학과 50주년" />
-        <span class="brand-copy">
-          <strong>제5회 페르시아어 말하기대회</strong>
-          <span>The 5th Persian Speech Contest</span>
-        </span>
-      </a>
-      <div class="edition" aria-label="자료 종류">
-        <span>사전 자료집</span>
-        <span class="edition-dot" aria-hidden="true"></span>
-        <span>2026</span>
-      </div>
-    </header>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#102d42">
+  <meta name="description" content="제5회 페르시아어 말하기대회 사전 자료집">
+  <title>제5회 페르시아어 말하기대회 | 자료집</title>
+  <link rel="icon" href="./favicon.svg" type="image/svg+xml">
+  <style>
+    :root { font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; color: #173447; }
+    * { box-sizing: border-box; }
+    body { margin: 0; height: 100dvh; min-height: 340px; display: flex; flex-direction: column; overflow: hidden; background: #eef1f3; }
+    button, input { font: inherit; }
+    button { cursor: pointer; }
+    button:disabled { opacity: .35; cursor: default; }
+    button:focus-visible, input:focus-visible { outline: 3px solid #51afc5; outline-offset: 2px; }
+    [hidden] { display: none !important; }
 
-    <main class="viewer-shell">
-      <section class="viewer" aria-label="PDF 자료집 뷰어">
-        <div class="stage-wrap" id="stageWrap">
-          <div class="corner corner-a" aria-hidden="true"></div>
-          <div class="corner corner-b" aria-hidden="true"></div>
+    header { min-height: 66px; background: #102d42; color: #fff; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 8px max(16px, env(safe-area-inset-left)); }
+    .brand { display: flex; gap: 11px; align-items: center; min-width: 0; color: inherit; text-decoration: none; }
+    .brand img { width: 43px; height: 43px; object-fit: contain; }
+    .brand strong { display: block; font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .brand small { display: block; font-size: 11px; color: #a9cfde; margin-top: 2px; }
+    .top-actions { display: flex; align-items: center; gap: 5px; flex-shrink: 0; }
+    .top-actions button, .top-actions a { border: 1px solid #426276; border-radius: 9px; background: #183d54; color: white; text-decoration: none; padding: 9px; font-size: 12px; white-space: nowrap; }
+    .top-actions button:hover, .top-actions a:hover { background: #26536b; }
 
-          <button class="edge-nav edge-prev" id="edgePrev" type="button" aria-label="이전 페이지">
-            <span aria-hidden="true">‹</span>
-          </button>
+    main { flex: 1; min-height: 0; position: relative; overflow: hidden; }
+    #stage { position: absolute; inset: 0; overflow: hidden; background: radial-gradient(ellipse at center, #f2f4f4 10%, #dce2e6 100%); touch-action: none; user-select: none; cursor: default; }
+    #stage.can-drag { cursor: grab; }
+    #stage.dragging { cursor: grabbing; }
+    #sheet { position: absolute; left: 50%; top: 50%; transform-origin: center; transform: translate(-50%, -50%) translate(var(--x, 0px), var(--y, 0px)) scale(var(--zoom, 1)); background: white; box-shadow: 0 5px 22px #142e4038; pointer-events: none; will-change: transform; }
+    #sheet canvas { display: block; width: 100%; height: 100%; }
+    #status { position: absolute; z-index: 3; left: 50%; top: 50%; transform: translate(-50%, -50%); color: #204456; background: #fffffff0; padding: 13px 18px; border-radius: 12px; box-shadow: 0 2px 10px #20374820; font-size: 13px; text-align: center; pointer-events: none; white-space: nowrap; }
 
-          <div class="page-stage" id="pageStage" tabindex="0" aria-label="자료집 페이지">
-            <div class="page-shadow" aria-hidden="true"></div>
-            <div class="page-card" id="pageCard">
-              <canvas id="pdfCanvas" aria-label="현재 PDF 페이지"></canvas>
-              <div class="page-gloss" aria-hidden="true"></div>
-            </div>
-            <div class="loading" id="loading" role="status" aria-live="polite">
-              <span class="loading-ring" aria-hidden="true"></span>
-              <span id="loadingText">자료집을 불러오는 중입니다</span>
-            </div>
-          </div>
+    .edge { position: absolute; z-index: 2; top: 50%; transform: translateY(-50%); width: 36px; height: 60px; border: 0; border-radius: 10px; background: #102d4280; color: white; font-size: 28px; opacity: .6; }
+    .edge:hover { opacity: 1; }
+    .edge.prev { left: 8px; }
+    .edge.next { right: 8px; }
 
-          <button class="edge-nav edge-next" id="edgeNext" type="button" aria-label="다음 페이지">
-            <span aria-hidden="true">›</span>
-          </button>
-        </div>
+    footer { background: white; border-top: 1px solid #dbe2e5; padding: 8px 12px calc(8px + env(safe-area-inset-bottom)); display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 8px 14px; }
+    .controls { display: flex; align-items: center; justify-content: center; gap: 5px; }
+    .controls button { height: 36px; min-width: 36px; border-radius: 8px; border: 1px solid #d8e1e5; color: #163c52; background: #f7f9fa; font-size: 17px; }
+    .controls button:hover:not(:disabled) { background: #e7f1f5; }
+    .controls button[aria-pressed="true"] { background: #173f57; border-color: #173f57; color: white; }
+    .controls .mode { font-size: 12px; min-width: 46px; padding: 0 7px; }
+    .controls input { width: 47px; height: 36px; padding: 2px 4px; text-align: center; border-radius: 8px; border: 1px solid #d8e1e5; color: #163c52; background: white; }
+    .controls .page-total, #zoomValue { min-width: 42px; font-size: 12px; text-align: center; color: #547080; }
+    .page-total { white-space: nowrap; }
+    .footnote { font-size: 11px; color: #69808d; text-align: center; width: 100%; }
 
-        <div class="toolbar" aria-label="뷰어 도구">
-          <div class="tool-group nav-tools">
-            <button class="tool-button" id="firstPage" type="button" title="첫 페이지" aria-label="첫 페이지">
-              <span aria-hidden="true">↤</span>
-            </button>
-            <button class="tool-button primary-tool" id="prevPage" type="button" aria-label="이전 페이지">
-              <span aria-hidden="true">‹</span><span class="tool-label">이전</span>
-            </button>
-            <div class="page-jump">
-              <label class="sr-only" for="pageInput">이동할 페이지</label>
-              <input id="pageInput" type="number" min="1" value="1" inputmode="numeric" />
-              <span aria-hidden="true">/</span>
-              <span id="pageCount">--</span>
-            </div>
-            <button class="tool-button primary-tool" id="nextPage" type="button" aria-label="다음 페이지">
-              <span class="tool-label">다음</span><span aria-hidden="true">›</span>
-            </button>
-            <button class="tool-button" id="lastPage" type="button" title="마지막 페이지" aria-label="마지막 페이지">
-              <span aria-hidden="true">↦</span>
-            </button>
-          </div>
+    #thumbPanel { position: absolute; z-index: 5; right: 12px; top: 12px; bottom: 12px; width: min(370px, calc(100% - 24px)); display: flex; flex-direction: column; background: #fff; border: 1px solid #d5e0e6; border-radius: 13px; box-shadow: 0 12px 40px #102d4240; overflow: hidden; }
+    .thumb-head { display: flex; justify-content: space-between; align-items: center; padding: 11px 13px; background: #173f57; color: white; font-size: 14px; }
+    .thumb-head button { border: 0; border-radius: 6px; background: #ffffff22; color: white; padding: 4px 10px; }
+    #thumbGrid { overflow: auto; flex: 1; padding: 14px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); align-content: start; gap: 13px 9px; }
+    .thumb { border: 1px solid transparent; border-radius: 8px; background: #f2f5f6; padding: 7px 4px; display: flex; flex-direction: column; align-items: center; gap: 6px; color: #274657; font-size: 12px; }
+    .thumb[aria-current="page"] { border-color: #267f9f; background: #e6f4f8; }
+    .thumb canvas { max-width: 100%; max-height: 125px; background: white; box-shadow: 0 1px 4px #0002; }
+    #toast { position: absolute; z-index: 9; bottom: 15px; left: 50%; transform: translateX(-50%); border-radius: 8px; padding: 9px 15px; background: #173f57; color: #fff; font-size: 12px; pointer-events: none; }
 
-          <div class="toolbar-rule" aria-hidden="true"></div>
+    @media (max-width: 600px) {
+      header { min-height: 55px; padding: 6px 10px; gap: 6px; }
+      .brand { gap: 6px; }
+      .brand img { width: 35px; height: 35px; }
+      .brand strong { font-size: 12px; }
+      .brand small { display: none; }
+      .top-actions { gap: 3px; }
+      .top-actions button, .top-actions a { padding: 8px 6px; font-size: 11px; }
+      footer { gap: 5px 12px; padding: 6px 5px calc(6px + env(safe-area-inset-bottom)); }
+      .footnote { display: none; }
+      .edge { width: 26px; height: 48px; font-size: 23px; border-radius: 7px; opacity: .36; }
+      .edge.prev { left: 4px; }
+      .edge.next { right: 4px; }
+    }
+    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
+  </style>
+</head>
+<body>
+  <header>
+    <a class="brand" href="?page=1" id="home" aria-label="첫 페이지로 이동">
+      <img src="./assets/department-50th.png" alt="학과 50주년 로고">
+      <span><strong>제5회 페르시아어 말하기대회</strong><small>The 5th Persian Speech Contest · 2026</small></span>
+    </a>
+    <div class="top-actions">
+      <button id="openThumbs" title="페이지 썸네일">목록</button>
+      <button id="copyLink" title="현재 페이지 링크 복사">공유</button>
+      <a href="./assets/persian-speech-contest-booklet.pdf" download="제5회_페르시아어_말하기대회_자료집.pdf" title="원본 PDF 다운로드">PDF ↓</a>
+    </div>
+  </header>
 
-          <div class="tool-group zoom-tools">
-            <button class="tool-button" id="zoomOut" type="button" aria-label="축소">
-              <span aria-hidden="true">−</span>
-            </button>
-            <button class="zoom-value" id="fitPage" type="button" title="화면에 맞추기">
-              <span id="zoomValue">100%</span>
-            </button>
-            <button class="tool-button" id="zoomIn" type="button" aria-label="확대">
-              <span aria-hidden="true">＋</span>
-            </button>
-          </div>
-        </div>
-      </section>
+  <main>
+    <div id="stage" aria-label="자료집 페이지. 좌우 스와이프로 페이지 이동, 두 손가락으로 확대·축소" tabindex="0">
+      <div id="sheet"><canvas id="pdfCanvas" aria-label="현재 페이지"></canvas></div>
+      <div id="status" role="status">자료집을 불러오는 중…</div>
+    </div>
+    <button class="edge prev" id="edgePrev" aria-label="이전 페이지">‹</button>
+    <button class="edge next" id="edgeNext" aria-label="다음 페이지">›</button>
 
-      <p class="hint"><span aria-hidden="true">← →</span> 키로 페이지를 넘기고, <span aria-hidden="true">＋ −</span> 키로 확대·축소할 수 있습니다.</p>
-    </main>
+    <aside id="thumbPanel" hidden aria-label="페이지 목록">
+      <div class="thumb-head"><strong>페이지 목록</strong><button id="closeThumbs" aria-label="목록 닫기">닫기 ×</button></div>
+      <div id="thumbGrid"></div>
+    </aside>
+    <div id="toast" hidden role="status"></div>
+  </main>
 
-    <noscript>이 뷰어를 사용하려면 브라우저에서 JavaScript를 활성화해 주세요.</noscript>
-    <script type="module" src="./viewer.js"></script>
-  </body>
+  <footer>
+    <nav class="controls" aria-label="페이지 이동">
+      <button id="first" title="처음 페이지">⇤</button>
+      <button id="prev" title="이전 페이지">‹</button>
+      <label for="pageInput" style="position:absolute;left:-9999px">페이지 번호</label>
+      <input id="pageInput" type="number" min="1" value="1" inputmode="numeric">
+      <span class="page-total">/ <span id="pageTotal">-</span></span>
+      <button id="next" title="다음 페이지">›</button>
+      <button id="last" title="마지막 페이지">⇥</button>
+    </nav>
+    <div class="controls" aria-label="확대 및 화면 맞춤">
+      <button class="mode" id="fit" aria-pressed="true" title="페이지 전체 보기">맞춤</button>
+      <button class="mode" id="width" aria-pressed="false" title="화면 너비에 맞추기">너비</button>
+      <button id="zoomOut" title="축소">−</button>
+      <span id="zoomValue">100%</span>
+      <button id="zoomIn" title="확대">+</button>
+    </div>
+    <div class="footnote">좌우 스와이프: 페이지 이동 · 두 손가락: 확대 · 확대 후 드래그: 이동 · 더블탭: 확대/복귀</div>
+  </footer>
+
+  <script type="module">
+    import * as pdfjs from "https://cdn.jsdelivr.net/npm/pdfjs-dist@4.10.38/build/pdf.min.mjs";
+    pdfjs.GlobalWorkerOptions.workerSrc = "https://cdn.jsdelivr.net/npm/pdfjs-dist@4.10.38/build/pdf.worker.min.mjs";
+
+    // 이 두 경로는 기존 GitHub 저장소의 파일을 그대로 사용합니다.
+    const PDF_URL = "./assets/persian-speech-contest-booklet.pdf";
+    const $ = (selector) => document.querySelector(selector);
+    const stage = $("#stage");
+    const sheet = $("#sheet");
+    const canvas = $("#pdfCanvas");
+    const status = $("#status");
+    const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
+
+    let pdf;
+    let leaves = [];
+    let pageNumber = 1;
+    let mode = "fit";
+    let zoom = 1;
+    let panX = 0;
+    let panY = 0;
+    let baseScale = 1;
+    let pageWidth = 0;
+    let pageHeight = 0;
+    let renderVersion = 0;
+    let renderTask = null;
+    let renderTimer;
+    let resizeTimer;
+    let toastTimer;
+    let thumbObserver;
+    const pointers = new Map();
+    let gesture = null;
+    let pinch = null;
+    let usedMultiTouch = false;
+    let lastTap = null;
+
+    function getLimits() {
+      return {
+        x: Math.max(0, (pageWidth * zoom - stage.clientWidth) / 2),
+        y: Math.max(0, (pageHeight * zoom - stage.clientHeight) / 2)
+      };
+    }
+
+    function constrainPan() {
+      const limit = getLimits();
+      panX = clamp(panX, -limit.x, limit.x);
+      panY = clamp(panY, -limit.y, limit.y);
+    }
+
+    function updateView() {
+      constrainPan();
+      sheet.style.setProperty("--x", `${panX}px`);
+      sheet.style.setProperty("--y", `${panY}px`);
+      sheet.style.setProperty("--zoom", zoom);
+      $("#zoomValue").textContent = `${Math.round(zoom * 100)}%`;
+      stage.classList.toggle("can-drag", zoom > 1.01 || getLimits().y > 0);
+    }
+
+    function scheduleRender() {
+      clearTimeout(renderTimer);
+      renderTimer = setTimeout(render, 180);
+    }
+
+    function setZoom(value, clientX, clientY) {
+      const next = clamp(value, .65, 4);
+      const bounds = stage.getBoundingClientRect();
+      const x = (clientX ?? bounds.left + bounds.width / 2) - bounds.left - bounds.width / 2;
+      const y = (clientY ?? bounds.top + bounds.height / 2) - bounds.top - bounds.height / 2;
+      const ratio = next / zoom;
+      panX = x - (x - panX) * ratio;
+      panY = y - (y - panY) * ratio;
+      zoom = next;
+      updateView();
+      scheduleRender();
+    }
+
+    function resetView() {
+      zoom = 1;
+      panX = 0;
+      panY = getLimits().y; // 너비 맞춤에서 페이지가 길면 맨 위부터 표시
+      updateView();
+    }
+
+    function layout() {
+      if (!pdf || !leaves.length) return;
+      const leaf = leaves[pageNumber - 1];
+      baseScale = mode === "fit"
+        ? Math.min((stage.clientWidth - 12) / leaf.width, (stage.clientHeight - 12) / leaf.height)
+        : (stage.clientWidth - 12) / leaf.width;
+      baseScale = Math.max(baseScale, .01);
+      pageWidth = leaf.width * baseScale;
+      pageHeight = leaf.height * baseScale;
+      sheet.style.width = `${pageWidth}px`;
+      sheet.style.height = `${pageHeight}px`;
+      resetView();
+      render();
+    }
+
+    async function render() {
+      if (!pdf || !leaves.length) return;
+      const version = ++renderVersion;
+      if (renderTask) renderTask.cancel();
+      const leaf = leaves[pageNumber - 1];
+      try {
+        const page = await pdf.getPage(leaf.pdfPage);
+        if (version !== renderVersion) return;
+
+        // 확대 중에는 CSS로 즉시 변형하고, 조작 후 고화질로 다시 그립니다.
+        const pixels = pageWidth * pageHeight * zoom * zoom;
+        const quality = Math.min(window.devicePixelRatio || 1, 2, Math.sqrt(14000000 / Math.max(1, pixels)));
+        const viewport = page.getViewport({ scale: baseScale * zoom });
+        const buffer = document.createElement("canvas");
+        buffer.width = Math.max(1, Math.round(viewport.width / leaf.parts * quality));
+        buffer.height = Math.max(1, Math.round(viewport.height * quality));
+
+        const task = page.render({
+          canvasContext: buffer.getContext("2d", { alpha: false }),
+          viewport,
+          transform: [quality, 0, 0, quality, -leaf.part * viewport.width / leaf.parts * quality, 0]
+        });
+        renderTask = task;
+        await task.promise;
+        if (version !== renderVersion) return;
+
+        canvas.width = buffer.width;
+        canvas.height = buffer.height;
+        canvas.getContext("2d", { alpha: false }).drawImage(buffer, 0, 0);
+        status.hidden = true;
+      } catch (error) {
+        if (error?.name === "RenderingCancelledException") return;
+        console.error(error);
+        status.textContent = "페이지를 표시하지 못했습니다. 새로고침해 주세요.";
+        status.hidden = false;
+      } finally {
+        if (version === renderVersion) renderTask = null;
+      }
+    }
+
+    function updatePageUI() {
+      $("#pageInput").value = pageNumber;
+      $("#pageTotal").textContent = leaves.length;
+      $("#pageInput").max = leaves.length;
+      for (const id of ["first", "prev", "edgePrev"]) $("#" + id).disabled = pageNumber === 1;
+      for (const id of ["last", "next", "edgeNext"]) $("#" + id).disabled = pageNumber === leaves.length;
+      document.querySelectorAll(".thumb").forEach((button, i) => {
+        if (i + 1 === pageNumber) button.setAttribute("aria-current", "page");
+        else button.removeAttribute("aria-current");
+      });
+      const url = new URL(location.href);
+      url.searchParams.set("page", pageNumber);
+      history.replaceState(null, "", url);
+    }
+
+    function goTo(number) {
+      if (!pdf || !leaves.length) return;
+      const next = clamp(Math.round(Number(number) || 1), 1, leaves.length);
+      if (next === pageNumber) { $("#pageInput").value = pageNumber; return; }
+      pageNumber = next;
+      status.textContent = "페이지를 불러오는 중…";
+      status.hidden = false;
+      updatePageUI();
+      layout();
+    }
+
+    function setMode(nextMode) {
+      if (!pdf) return;
+      mode = nextMode;
+      $("#fit").setAttribute("aria-pressed", mode === "fit");
+      $("#width").setAttribute("aria-pressed", mode === "width");
+      layout();
+    }
+
+    // 터치 한 손가락: 기본 상태에서 페이지 넘기기, 확대 상태에서는 이동.
+    // 두 손가락: 중심점을 유지하며 확대/축소.
+    function startGesture() {
+      const items = [...pointers.values()];
+      if (items.length === 1) {
+        gesture = { x: items[0].x, y: items[0].y, panX, panY };
+        pinch = null;
+      } else if (items.length >= 2) {
+        usedMultiTouch = true;
+        const a = items[0];
+        const b = items[1];
+        const rect = stage.getBoundingClientRect();
+        const middleX = (a.x + b.x) / 2 - rect.left - rect.width / 2;
+        const middleY = (a.y + b.y) / 2 - rect.top - rect.height / 2;
+        pinch = {
+          distance: Math.hypot(a.x - b.x, a.y - b.y),
+          zoom,
+          localX: (middleX - panX) / zoom,
+          localY: (middleY - panY) / zoom
+        };
+      }
+    }
+
+    stage.addEventListener("pointerdown", (event) => {
+      if (event.pointerType === "mouse" && event.button !== 0) return;
+      event.preventDefault();
+      stage.setPointerCapture(event.pointerId);
+      pointers.set(event.pointerId, { x: event.clientX, y: event.clientY, type: event.pointerType, time: performance.now() });
+      if (pointers.size === 1) usedMultiTouch = false;
+      startGesture();
+    });
+
+    stage.addEventListener("pointermove", (event) => {
+      if (!pointers.has(event.pointerId)) return;
+      const point = pointers.get(event.pointerId);
+      point.x = event.clientX;
+      point.y = event.clientY;
+      if (pointers.size >= 2 && pinch) {
+        const [a, b] = [...pointers.values()];
+        const rect = stage.getBoundingClientRect();
+        const middleX = (a.x + b.x) / 2 - rect.left - rect.width / 2;
+        const middleY = (a.y + b.y) / 2 - rect.top - rect.height / 2;
+        zoom = clamp(pinch.zoom * Math.hypot(a.x - b.x, a.y - b.y) / Math.max(1, pinch.distance), .65, 4);
+        panX = middleX - pinch.localX * zoom;
+        panY = middleY - pinch.localY * zoom;
+        updateView();
+      } else if (pointers.size === 1 && gesture) {
+        const moving = zoom > 1.01 || getLimits().y > 0;
+        if (moving) {
+          panX = zoom > 1.01 ? gesture.panX + event.clientX - gesture.x : 0;
+          panY = gesture.panY + event.clientY - gesture.y;
+          updateView();
+          stage.classList.add("dragging");
+        }
+      }
+    });
+
+    function finishPointer(event, cancelled = false) {
+      if (!pointers.has(event.pointerId)) return;
+      const point = pointers.get(event.pointerId);
+      const dx = event.clientX - (gesture?.x ?? event.clientX);
+      const dy = event.clientY - (gesture?.y ?? event.clientY);
+      const single = pointers.size === 1 && !usedMultiTouch;
+      pointers.delete(event.pointerId);
+      stage.classList.remove("dragging");
+      if (single && !cancelled) {
+        if (zoom <= 1.01 && Math.abs(dx) > 55 && Math.abs(dx) > Math.abs(dy) * 1.3) {
+          goTo(pageNumber + (dx < 0 ? 1 : -1));
+          lastTap = null;
+        } else if (point.type === "touch" && Math.hypot(dx, dy) < 14 && performance.now() - point.time < 280) {
+          const now = performance.now();
+          if (lastTap && now - lastTap.time < 330 && Math.hypot(event.clientX - lastTap.x, event.clientY - lastTap.y) < 35) {
+            if (zoom > 1.1) { resetView(); scheduleRender(); }
+            else setZoom(2.2, event.clientX, event.clientY);
+            lastTap = null;
+          } else lastTap = { time: now, x: event.clientX, y: event.clientY };
+        }
+      }
+      if (pointers.size) startGesture();
+      else { gesture = null; pinch = null; scheduleRender(); }
+    }
+    stage.addEventListener("pointerup", (event) => finishPointer(event));
+    stage.addEventListener("pointercancel", (event) => finishPointer(event, true));
+    stage.addEventListener("dblclick", (event) => {
+      if (event.pointerType === "touch") return;
+      if (zoom > 1.1) { resetView(); scheduleRender(); }
+      else setZoom(2.2, event.clientX, event.clientY);
+    });
+    stage.addEventListener("wheel", (event) => {
+      if (event.ctrlKey || event.metaKey) {
+        event.preventDefault();
+        setZoom(zoom * (event.deltaY < 0 ? 1.12 : 1 / 1.12), event.clientX, event.clientY);
+      } else if (getLimits().y > 0) {
+        event.preventDefault();
+        panY -= event.deltaY;
+        panX -= event.deltaX;
+        updateView();
+      }
+    }, { passive: false });
+
+    // 페이지 썸네일은 목록을 열었을 때 보이는 것부터 그립니다.
+    function makeThumbs() {
+      const grid = $("#thumbGrid");
+      thumbObserver = new IntersectionObserver((entries) => {
+        for (const entry of entries) {
+          if (!entry.isIntersecting) continue;
+          thumbObserver.unobserve(entry.target);
+          drawThumb(entry.target, Number(entry.target.dataset.index));
+        }
+      }, { root: grid, rootMargin: "120px" });
+      leaves.forEach((leaf, index) => {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "thumb";
+        button.dataset.index = index;
+        button.innerHTML = `<canvas aria-hidden="true"></canvas><span>${index + 1}</span>`;
+        button.addEventListener("click", () => { goTo(index + 1); $("#thumbPanel").hidden = true; });
+        grid.append(button);
+        thumbObserver.observe(button);
+      });
+    }
+
+    async function drawThumb(button, index) {
+      const leaf = leaves[index];
+      try {
+        const page = await pdf.getPage(leaf.pdfPage);
+        const scale = 86 / leaf.width;
+        const viewport = page.getViewport({ scale });
+        const thumb = button.querySelector("canvas");
+        thumb.width = Math.ceil(viewport.width / leaf.parts);
+        thumb.height = Math.ceil(viewport.height);
+        await page.render({
+          canvasContext: thumb.getContext("2d", { alpha: false }),
+          viewport,
+          transform: [1, 0, 0, 1, -leaf.part * viewport.width / leaf.parts, 0]
+        }).promise;
+      } catch (error) { console.warn("썸네일을 표시하지 못했습니다.", error); }
+    }
+
+    function toast(message) {
+      const el = $("#toast");
+      el.textContent = message;
+      el.hidden = false;
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => { el.hidden = true; }, 2000);
+    }
+
+    $("#first").onclick = () => goTo(1);
+    $("#prev").onclick = $("#edgePrev").onclick = () => goTo(pageNumber - 1);
+    $("#next").onclick = $("#edgeNext").onclick = () => goTo(pageNumber + 1);
+    $("#last").onclick = () => goTo(leaves.length);
+    $("#home").onclick = (event) => { event.preventDefault(); goTo(1); };
+    $("#fit").onclick = () => setMode("fit");
+    $("#width").onclick = () => setMode("width");
+    $("#zoomOut").onclick = () => setZoom(zoom / 1.25);
+    $("#zoomIn").onclick = () => setZoom(zoom * 1.25);
+    $("#pageInput").addEventListener("change", (event) => goTo(event.target.value));
+    $("#openThumbs").onclick = () => { $("#thumbPanel").hidden = !$("#thumbPanel").hidden; };
+    $("#closeThumbs").onclick = () => { $("#thumbPanel").hidden = true; };
+    $("#copyLink").onclick = async () => {
+      const link = location.href;
+      try { await navigator.clipboard.writeText(link); toast("현재 페이지 링크를 복사했습니다."); }
+      catch { window.prompt("아래 주소를 복사하세요.", link); }
+    };
+    document.addEventListener("keydown", (event) => {
+      if (event.target instanceof HTMLInputElement) return;
+      if (event.key === "Escape") $("#thumbPanel").hidden = true;
+      if (event.key === "ArrowLeft" || event.key === "PageUp") { event.preventDefault(); goTo(pageNumber - 1); }
+      if (event.key === "ArrowRight" || event.key === "PageDown") { event.preventDefault(); goTo(pageNumber + 1); }
+      if (event.key === "Home") goTo(1);
+      if (event.key === "End") goTo(leaves.length);
+      if (event.key === "+" || event.key === "=") setZoom(zoom * 1.25);
+      if (event.key === "-" || event.key === "_") setZoom(zoom / 1.25);
+      if (event.key === "0") { resetView(); scheduleRender(); }
+    });
+    window.addEventListener("resize", () => {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(layout, 140);
+    });
+
+    async function init() {
+      try {
+        pdf = await pdfjs.getDocument(PDF_URL).promise;
+        // 가로 펼침면만 좌·우로 분할하고 표지·뒤표지는 그대로 둡니다.
+        for (let n = 1; n <= pdf.numPages; n++) {
+          const page = await pdf.getPage(n);
+          const size = page.getViewport({ scale: 1 });
+          const parts = size.width > size.height ? 2 : 1;
+          for (let part = 0; part < parts; part++) {
+            leaves.push({ pdfPage: n, part, parts, width: size.width / parts, height: size.height });
+          }
+        }
+        const requested = Number(new URLSearchParams(location.search).get("page"));
+        if (Number.isInteger(requested) && requested > 0) pageNumber = clamp(requested, 1, leaves.length);
+        updatePageUI();
+        makeThumbs();
+        layout();
+      } catch (error) {
+        console.error(error);
+        status.textContent = "자료집을 불러올 수 없습니다. PDF 경로와 인터넷 연결을 확인해 주세요.";
+        status.hidden = false;
+      }
+    }
+    init();
+  </script>
+</body>
 </html>
