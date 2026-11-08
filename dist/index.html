@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#102a40" />
+    <meta name="description" content="제5회 페르시아어 말하기대회 사전 자료집 온라인 뷰어" />
+    <title>제5회 페르시아어 말하기대회 자료집</title>
+    <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="brand" href="#" aria-label="자료집 첫 페이지로 이동">
+        <img class="brand-mark" src="./assets/department-50th.png" alt="페르시아어·이란학과 50주년" />
+        <span class="brand-copy">
+          <strong>제5회 페르시아어 말하기대회</strong>
+          <span>The 5th Persian Speech Contest</span>
+        </span>
+      </a>
+      <div class="edition" aria-label="자료 종류">
+        <span>사전 자료집</span>
+        <span class="edition-dot" aria-hidden="true"></span>
+        <span>2026</span>
+      </div>
+    </header>
+
+    <main class="viewer-shell">
+      <section class="viewer" aria-label="PDF 자료집 뷰어">
+        <div class="stage-wrap" id="stageWrap">
+          <div class="corner corner-a" aria-hidden="true"></div>
+          <div class="corner corner-b" aria-hidden="true"></div>
+
+          <button class="edge-nav edge-prev" id="edgePrev" type="button" aria-label="이전 페이지">
+            <span aria-hidden="true">‹</span>
+          </button>
+
+          <div class="page-stage" id="pageStage" tabindex="0" aria-label="자료집 페이지">
+            <div class="page-shadow" aria-hidden="true"></div>
+            <div class="page-card" id="pageCard">
+              <canvas id="pdfCanvas" aria-label="현재 PDF 페이지"></canvas>
+              <div class="page-gloss" aria-hidden="true"></div>
+            </div>
+            <div class="loading" id="loading" role="status" aria-live="polite">
+              <span class="loading-ring" aria-hidden="true"></span>
+              <span id="loadingText">자료집을 불러오는 중입니다</span>
+            </div>
+          </div>
+
+          <button class="edge-nav edge-next" id="edgeNext" type="button" aria-label="다음 페이지">
+            <span aria-hidden="true">›</span>
+          </button>
+        </div>
+
+        <div class="toolbar" aria-label="뷰어 도구">
+          <div class="tool-group nav-tools">
+            <button class="tool-button" id="firstPage" type="button" title="첫 페이지" aria-label="첫 페이지">
+              <span aria-hidden="true">↤</span>
+            </button>
+            <button class="tool-button primary-tool" id="prevPage" type="button" aria-label="이전 페이지">
+              <span aria-hidden="true">‹</span><span class="tool-label">이전</span>
+            </button>
+            <div class="page-jump">
+              <label class="sr-only" for="pageInput">이동할 페이지</label>
+              <input id="pageInput" type="number" min="1" value="1" inputmode="numeric" />
+              <span aria-hidden="true">/</span>
+              <span id="pageCount">--</span>
+            </div>
+            <button class="tool-button primary-tool" id="nextPage" type="button" aria-label="다음 페이지">
+              <span class="tool-label">다음</span><span aria-hidden="true">›</span>
+            </button>
+            <button class="tool-button" id="lastPage" type="button" title="마지막 페이지" aria-label="마지막 페이지">
+              <span aria-hidden="true">↦</span>
+            </button>
+          </div>
+
+          <div class="toolbar-rule" aria-hidden="true"></div>
+
+          <div class="tool-group zoom-tools">
+            <button class="tool-button" id="zoomOut" type="button" aria-label="축소">
+              <span aria-hidden="true">−</span>
+            </button>
+            <button class="zoom-value" id="fitPage" type="button" title="화면에 맞추기">
+              <span id="zoomValue">100%</span>
+            </button>
+            <button class="tool-button" id="zoomIn" type="button" aria-label="확대">
+              <span aria-hidden="true">＋</span>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <p class="hint"><span aria-hidden="true">← →</span> 키로 페이지를 넘기고, <span aria-hidden="true">＋ −</span> 키로 확대·축소할 수 있습니다.</p>
+    </main>
+
+    <noscript>이 뷰어를 사용하려면 브라우저에서 JavaScript를 활성화해 주세요.</noscript>
+    <script type="module" src="./viewer.js"></script>
+  </body>
+</html>
