@@ -1,0 +1,33 @@
+@font-face { font-family: HUFS; src: url('./assets/fonts/hufs-b.ttf') format('truetype'); font-weight: 700; font-style: normal; font-display: swap; }
+@font-face { font-family: HUFS; src: url('./assets/fonts/hufs-l.ttf') format('truetype'); font-weight: 300; font-style: normal; font-display: swap; }
+:root { color-scheme: dark; color: #fff; }
+body {
+  color: #fff;
+  background: radial-gradient(circle at 16% 8%, rgba(53,126,144,.38), transparent 31rem), radial-gradient(circle at 90% 88%, rgba(24,136,154,.18), transparent 30rem), linear-gradient(145deg,#17384f 0%,#102b40 43%,#081d2d 100%);
+}
+header { min-height: 76px; padding-inline: clamp(18px,4vw,64px); border-bottom: 1px solid #ffffff29; background: rgba(7,27,42,.64); backdrop-filter: blur(18px); }
+.brand { gap: 13px; }
+.brand img { width: 72px; height: 60px; object-fit: contain; background: transparent; border: 0; }
+.brand strong { font-family: HUFS,sans-serif; font-weight: 700; font-size: 16px; }
+.brand small { font-family: HUFS,sans-serif; font-weight: 300; font-size: 11px; color: #ffffff94; }
+#stage {
+  background: radial-gradient(circle at center,rgba(255,255,255,.06),transparent 42%),rgba(2,18,30,.28);
+}
+#stage::before { content: ''; position: absolute; inset: 0; pointer-events: none; opacity: .22; background-image: linear-gradient(125deg,transparent 0 47%,#ffffff0a 47% 48%,transparent 48% 100%),linear-gradient(55deg,transparent 0 64%,#ffffff06 64% 65%,transparent 65% 100%); background-size: 34rem 34rem,28rem 28rem; }
+#sheet { box-shadow: 0 18px 56px #020f1b57,0 0 0 1px #ffffff29; }
+.edge { background: #071b2a40; color: #d9f3f3; }
+footer { background: rgba(7,25,39,.92); border-color: #ffffff29; color: #fff; }
+.controls button { color: #d9f3f3; border-color: #ffffff1f; background: #ffffff09; }
+.controls button:hover:not(:disabled) { background: #ffffff18; }
+.controls button[aria-pressed='true'] { background: #17889a55; border-color: #77c5ca80; }
+.controls input { background: #ffffff09; border-color: #ffffff1f; color: #fff; }
+.controls .page-total, #zoomValue { color: #ffffffb8; }
+.footnote { color: #ffffff66; }
+.top-actions button,.top-actions a { background: #ffffff09; border-color: #ffffff29; }
+.top-actions button:hover,.top-actions a:hover { background: #ffffff18; }
+@media(max-width:600px) {
+  header { min-height: 64px; padding: 4px 10px; gap: 6px; }
+  .brand { gap: 7px; }
+  .brand img { width: 56px; height: 54px; flex-shrink: 0; }
+  .brand strong { font-size: 12px; }
+}
